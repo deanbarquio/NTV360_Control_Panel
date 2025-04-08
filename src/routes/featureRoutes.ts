@@ -6,9 +6,12 @@ const router = express.Router();
 router.get("/", getAllFeatures);
 router.post("/", createFeature);
 //router.put("/:featureId/toggle", toggleFlagAssignment);
+
 router.put("/:featureId/toggle", toggleFeatureStatus);
+
 
 router.put("/:id", updateFeature);
 
 router.patch("/:id/delete", deleteFeature);
+
 export default router; 

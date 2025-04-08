@@ -19,6 +19,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/features", featureRoutes); 
 app.use("/api/logs", logsRoutes); 
 
+
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

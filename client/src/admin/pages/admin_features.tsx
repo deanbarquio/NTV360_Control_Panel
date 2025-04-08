@@ -24,8 +24,8 @@ const FeatureList: React.FC = () => {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [confirmToggle, setConfirmToggle] = useState(false);
     const [pendingToggleFeatureId, setPendingToggleFeatureId] = useState<string | null>(null);
-    const [toggleActionType, setToggleActionType] = useState<"enable" | "disable">("enable");
-    const [currentToggleStatus, setCurrentToggleStatus] = useState<boolean>(false);
+    // const [toggleActionType, setToggleActionType] = useState<"enable" | "disable">("enable");
+    // const [currentToggleStatus, setCurrentToggleStatus] = useState<boolean>(false);
     const [pendingToggleStatus, setPendingToggleStatus] = useState<boolean>(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -40,12 +40,8 @@ const totalPages = Math.ceil(totalItems / itemsPerPage);
 const startIndex = (currentPage - 1) * itemsPerPage + 1;
 const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
-
-
-
-
       // ✅ Retrieve userId from localStorage
-    const userId = localStorage.getItem("userId");
+const userId = localStorage.getItem("userId");
     
 const openFeatureDetails = (feature: Feature) => {
     setSelectedFeature(feature);
@@ -69,21 +65,21 @@ const fetchFeatures = async () => {
         }
 };
 
-const handleToggle = async (featureId: string, currentStatus: boolean) => {
-        try {
-          await axios.put(`/api/features/${featureId}/toggle`, {
-            Feature_Status: !currentStatus,
-          });
+// const handleToggle = async (featureId: string, currentStatus: boolean) => {
+//         try {
+//           await axios.put(`/api/features/${featureId}/toggle`, {
+//             Feature_Status: !currentStatus,
+//           });
     
-          setFeatures((prev) =>
-            prev.map((f) =>
-              f.Feature_Id === featureId ? { ...f, Feature_Status: !currentStatus } : f
-            )
-          );
-        } catch (error) {
-          console.error("Toggle failed:", error);
-        }
-};
+//           setFeatures((prev) =>
+//             prev.map((f) =>
+//               f.Feature_Id === featureId ? { ...f, Feature_Status: !currentStatus } : f
+//             )
+//           );
+//         } catch (error) {
+//           console.error("Toggle failed:", error);
+//         }
+// };
 
 useEffect(() => {
   fetchFeatures();
@@ -117,18 +113,19 @@ const handleToggleFlagAssignment = async (featureId: string, currentStatus: bool
       }
     };
 
-const handleToggleRequest = (featureId: string, currentStatus: boolean) => {
-  setPendingToggleFeatureId(featureId);
-  setCurrentToggleStatus(currentStatus);
-  setToggleActionType(currentStatus ? "disable" : "enable");
-  setConfirmToggle(true);
-};
+// const handleToggleRequest = (featureId: string, currentStatus: boolean) => {
+//   setPendingToggleFeatureId(featureId);
+//   setCurrentToggleStatus(currentStatus);
+//   setToggleActionType(currentStatus ? "disable" : "enable");
+//   setConfirmToggle(true);
+// };
 
 const confirmToggleFeature = async () => {
   if (!pendingToggleFeatureId) return;
 
   try {
     await axios.put(`/api/features/${pendingToggleFeatureId}/toggle`, {
+      User_Id: userId,
       Feature_Status: pendingToggleStatus,
     });
 
@@ -146,7 +143,6 @@ const confirmToggleFeature = async () => {
     setPendingToggleFeatureId(null);
   }
 };
-
 
 const requestToggleConfirmation = (featureId: string, currentStatus: boolean) => {
   setPendingToggleFeatureId(featureId);
@@ -258,7 +254,7 @@ return (
                 <th className="w-[150px] h-[50px] px-4 py-3">Enable</th>
                 <th className="w-[150px] h-[50px] px-4 py-3">Created by</th>
                 <th className="px-4 py-3 w-[100px] h-[50px]">Status</th>
-                <th className="px-4 py-3 w-[100px] h-[50px]">Jira No.</th>
+                <th className="px-4 py-3 w-[100px] h-[50px]">Ticket No.</th>
                 <th className="w-[150px] h-[50px] px-4 py-3">Actions</th>
               </tr>
             </thead>
@@ -302,10 +298,11 @@ return (
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        feature.Feature_Status ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                        // bg-green-100 bg-red-100
+                        feature.Feature_Status ? " text-green-600" : " text-red-600"
                       }`}
                     >
-                      {feature.Feature_Status ? "Enabled" : "Disabled"}
+                      {feature.Feature_Status ? "Active" : "Inactive"}
                     </span>
                   </td>
 

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Feature } from "../types";
+import React, { useState, useEffect } from "react";
+import { Audit, Feature } from "../types";
+import axios from "axios";
 
 interface Props {
   feature: Feature | null;
@@ -24,7 +25,8 @@ const FeatureDetailsModal: React.FC<Props> = ({
   // 🔧 EDIT MODE STATES
   const [isEditing, setIsEditing] = useState(false);
   const [editedFeature, setEditedFeature] = useState<Feature>({ ...feature });
-  
+  const [featureLogs, setFeatureLogs] = useState<Audit[]>([]);
+
   const handleChange = (field: keyof Feature, value: string | boolean) => {
     setEditedFeature((prev) => ({
       ...prev,
@@ -41,6 +43,23 @@ const FeatureDetailsModal: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  useEffect(() => {
+    const fetchFeatureLogs = async () => {
+      if (!feature?.Feature_Id) return;
+  
+      try {
+        const res = await axios.get(`/api/logs/feature/${feature.Feature_Id}`);
+        setFeatureLogs(res.data);
+      } catch (error) {
+        console.error("Failed to fetch feature logs:", error);
+      }
+    };
+  
+    if (isOpen) {
+      fetchFeatureLogs();
+    }
+  }, [feature, isOpen]);
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg w-full max-w-6xl p-8 shadow-2xl flex gap-6">
@@ -174,13 +193,39 @@ const FeatureDetailsModal: React.FC<Props> = ({
 
         {/* RIGHT PANEL: Activity History Placeholder */}
         <div className="w-80 bg-gray-50 border border-gray-200 rounded-md p-4">
+  <h3 className="text-md font-semibold text-gray-800 mb-2">
+    Activity History
+  </h3>
+
+  {featureLogs.length === 0 ? (
+    <ul className="text-sm text-gray-600 space-y-2">
+      <li className="italic text-gray-400">No history data yet</li>
+    </ul>
+  ) : (
+    <ul className="text-sm text-gray-600 space-y-2 max-h-64 overflow-y-auto">
+      {featureLogs.map((log) => (
+        <li key={log.Log_Id} className="flex flex-col border-b pb-2">
+          <span className="font-medium text-gray-800">
+            {log.Log_Activity}
+          </span>
+          <span className="text-xs text-gray-500">
+            {log.user?.User_FName} {log.user?.User_LName} ·{" "}
+            {new Date(log.Timestamp).toLocaleString()}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+        {/* <div className="w-80 bg-gray-50 border border-gray-200 rounded-md p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-2">
             Activity History
           </h3>
           <ul className="text-sm text-gray-600 space-y-2">
             <li className="italic text-gray-400">No history data yet</li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );

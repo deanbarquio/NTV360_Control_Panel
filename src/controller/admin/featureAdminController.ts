@@ -12,7 +12,7 @@ export const createFeature = async (req: Request, res: Response): Promise<void> 
         return;
       }
   
-      console.log("🛠️ Payload:", req.body);
+      //console.log("🛠️ Payload:", req.body);
   
       // Validate user existence
       const user = await prisma.user.findUnique({
@@ -127,41 +127,73 @@ export const createFeature = async (req: Request, res: Response): Promise<void> 
 //     }
 //   };
 
-  export const toggleFeatureStatus = async (req: Request, res: Response) => {
-    const { featureId } = req.params;
-    const { Feature_Status } = req.body;
+// export const toggleFeatureStatus = async (req: Request, res: Response) => {
+//     const { featureId } = req.params;
+//     const { Feature_Status } = req.body;
   
-    try {
-      const updatedFeature = await prisma.feature_Flag.update({
-        where: {
-          Feature_Id: featureId,
-        },
-        data: {
-          Feature_Status: Feature_Status, // ✅ Use the value from frontend
-        },
-      });
+//     try {
+//       const updatedFeature = await prisma.feature_Flag.update({
+//         where: {
+//           Feature_Id: featureId,
+//         },
+//         data: {
+//           Feature_Status: Feature_Status, // ✅ Use the value from frontend
+//         },
+//       });
   
-      res.json({
-        message: "Feature status updated",
-        updatedFeature,
-      });
-    } catch (error) {
-      console.error("Error updating feature status:", error);
-      res.status(500).json({ message: "Failed to update feature status" });
-    }
-  };
+//       res.json({
+//         message: "Feature status updated",
+//         updatedFeature,
+//       });
+//     } catch (error) {
+//       console.error("Error updating feature status:", error);
+//       res.status(500).json({ message: "Failed to update feature status" });
+//     }
+// };
 
+export const toggleFeatureStatus = async (req: Request, res: Response): Promise<void> => {
+  const { featureId } = req.params;
+  const { Feature_Status, User_Id } = req.body;
 
-export const handleEditFeature = async (req: Request, res: Response) => {
+  if (User_Id === undefined || Feature_Status === undefined) {
+    res.status(400).json({ message: "Missing required fields: Feature_Status or User_Id." });
+    return;
+  }
 
+  try {
+    const updatedFeature = await prisma.feature_Flag.update({
+      where: { Feature_Id: featureId },
+      data: { Feature_Status },
+    });
+
+    // Insert into Audit Logs
+    await prisma.audit_Logs.create({
+      data: {
+        User_Id,
+        Features_Id: featureId,
+        Log_Activity: "Updated Status",
+      },
+    });
+
+    res.status(200).json({
+      message: "Feature status updated and audit logged.",
+      updatedFeature,
+    });
+  } catch (error) {
+    console.error("Error updating feature status:", error);
+    res.status(500).json({ message: "Failed to update feature status" });
+  }
 };
+// export const handleEditFeature = async (req: Request, res: Response) => {
+
+// };
 
 export const updateFeature = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { Feature_Name, Feature_Desc, Feature_Status, Feature_JiraNo, User_Id } = req.body;
 
-    if (!Feature_Name || !Feature_Desc || Feature_Status === undefined || Feature_JiraNo || !User_Id) {
+    if (!Feature_Name || !Feature_Desc || Feature_Status === undefined|| !User_Id) {
       res.status(400).json({ message: "Missing required fields." });
       return;
     }
@@ -195,7 +227,7 @@ export const updateFeature = async (req: Request, res: Response): Promise<void> 
       data: {
         User_Id,
         Features_Id: id,
-        Log_Activity: "Edited",
+        Log_Activity: "Edited Details",
       },
     });
 

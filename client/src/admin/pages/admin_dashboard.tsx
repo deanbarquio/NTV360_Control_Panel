@@ -10,6 +10,7 @@ import FeatureDetailsModal from "../../modals/feature_details_modal";
 import ConfirmationModal from "../../modals/toggle_confimation_modal"
 import SuccessModal from "../../modals/success_modal"
 import DeleteConfirmationModal from "../../modals/delete_confirmation_modal"
+import AuditLogModal from "../../modals/log_details_modal"
 
 // Icons
 import CopyIcon from "../../assets/copy_feature_icon.jpg"
@@ -23,12 +24,13 @@ const Admin_Dashboard: React.FC = () => {
  // const [features, setFeatures] = useState([]);
   const [features, setFeatures] = useState<Feature[]>([]);
   const [logs, setLogs] = useState<Audit[]>([]);
+  // loading,
   const [loading, setLoading] = useState(true);
   const [pendingToggleFeatureId, setPendingToggleFeatureId] = useState<string | null>(null);
-  const [toggleActionType, setToggleActionType] = useState<"enable" | "disable">("enable");
-  const [currentToggleStatus, setCurrentToggleStatus] = useState<boolean>(false);
+  // const [toggleActionType, setToggleActionType] = useState<"enable" | "disable">("enable");
+  // const [currentToggleStatus, setCurrentToggleStatus] = useState<boolean>(false);
   const [pendingToggleStatus, setPendingToggleStatus] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const navigate = useNavigate();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -44,7 +46,9 @@ const Admin_Dashboard: React.FC = () => {
       const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
       const [isDeleteSuccessOpen, setIsDeleteSuccessOpen] = useState(false);
 
-  
+      const [selectedLog, setSelectedLog] = useState<Audit | null>(null);
+      const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+      
 
 useEffect(() => {
   const fetchCounts = async () => {
@@ -73,9 +77,8 @@ useEffect(() => {
   fetchCounts();
 }, []);
 
-
-  useEffect(() => {
-    const storedId = localStorage.getItem("userId");
+useEffect(() => {
+  const storedId = localStorage.getItem("userId");
     setUserId(storedId);
     console.log("🧠 Admin Dashboard UserID:", storedId);
 
@@ -83,7 +86,7 @@ useEffect(() => {
       alert("Session expired. Please log in again.");
       navigate("/");
     }
-  }, []);
+}, []);
 
   useEffect(() => {
     const fetchFeatures = async () => {
@@ -128,21 +131,21 @@ const openFeatureDetails = (feature: Feature) => {
 };
 
 
-const handleToggle = async (featureId: string, currentStatus: boolean) => {
-  try {
-    await axios.put(`/api/features/${featureId}/toggle`, {
-      Feature_Status: !currentStatus,
-    });
+// const handleToggle = async (featureId: string, currentStatus: boolean) => {
+//   try {
+//     await axios.put(`/api/features/${featureId}/toggle`, {
+//       Feature_Status: !currentStatus,
+//     });
 
-    setFeatures((prev) =>
-      prev.map((f) =>
-        f.Feature_Id === featureId ? { ...f, Feature_Status: !currentStatus } : f
-      )
-    );
-  } catch (error) {
-    console.error("Toggle failed:", error);
-  }
-};
+//     setFeatures((prev) =>
+//       prev.map((f) =>
+//         f.Feature_Id === featureId ? { ...f, Feature_Status: !currentStatus } : f
+//       )
+//     );
+//   } catch (error) {
+//     console.error("Toggle failed:", error);
+//   }
+// };
 
 useEffect(() => {
     fetchFeatures();
@@ -171,6 +174,7 @@ const confirmToggleFeature = async () => {
   try {
     await axios.put(`/api/features/${pendingToggleFeatureId}/toggle`, {
       Feature_Status: pendingToggleStatus,
+      User_Id: userId,
     });
   
     setFeatures((prev) =>
@@ -322,30 +326,47 @@ return (
                 </tr>
               </thead>
               <tbody className="text-gray-700">
-                {logs.length > 0 ? logs.map((log) => (
-                  <tr key={log.Log_Id} className="even:bg-[#F7FAF5] h-[48px]">
-                    <td className="px-4 py-2 text-left truncate">{log.feature?.Feature_Name || "N/A"}</td>
-                    
-                    <td className="px-4 py-2">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        log.Log_Activity === "Created" ? "bg-green-100 text-green-600"
-                        : log.Log_Activity === "Edited" ? "bg-yellow-100 text-yellow-600"
-                        : "bg-red-100 text-red-600"
-                      }`}>
-                        {log.Log_Activity}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2">
-                      {log.user ? `${log.user.User_FName} ${log.user.User_LName}` : "N/A"}
-                    </td>
-                    <td className="px-4 py-2">{new Date(log.Timestamp).toLocaleString()}</td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={4} className="px-4 py-2 text-gray-500">No logs found</td>
-                  </tr>
-                )}
-              </tbody>
+  {logs.length > 0 ? logs.map((log) => (
+    <tr
+      key={log.Log_Id}
+      onClick={() => {
+        setSelectedLog(log);
+        setIsLogModalOpen(true);
+      }}
+      className="even:bg-[#F7FAF5] h-[48px] cursor-pointer hover:bg-gray-100 transition"
+    >
+      <td className="px-4 py-2 text-left truncate">
+        {log.feature?.Feature_Name || "N/A"}
+      </td>
+
+      <td className="px-4 py-2">
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+          log.Log_Activity === "Created" ? "bg-green-100 text-green-600"
+          : log.Log_Activity === "Edited Details" ? "bg-yellow-100 text-yellow-600"
+          : log.Log_Activity === "Updated Status" ? "bg-orange-100 text-orange-600"
+          : "bg-red-100 text-red-600"
+        }`}>
+          {log.Log_Activity}
+        </span>
+      </td>
+
+      <td className="px-4 py-2">
+        {log.user ? `${log.user.User_FName} ${log.user.User_LName}` : "N/A"}
+      </td>
+
+      <td className="px-4 py-2">
+        {new Date(log.Timestamp).toLocaleString()}
+      </td>
+    </tr>
+  )) : (
+    <tr>
+      <td colSpan={4} className="px-4 py-2 text-gray-500 text-center">
+        No logs found
+      </td>
+    </tr>
+  )}
+</tbody>
+
             </table>
           </div>
         </section>
@@ -466,6 +487,13 @@ return (
         onClose={() => setIsDeleteSuccessOpen(false)}
         message="Feature deleted successfully!"
       />
+
+<AuditLogModal
+  isOpen={isLogModalOpen}
+  onClose={() => setIsLogModalOpen(false)}
+  log={selectedLog}
+/>
+
 
 <DeleteConfirmationModal
   isOpen={isConfirmOpen}
