@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Test { 
+  id   String @id @default(uuid()) 
+  name String
+}
+
+model User {
+  User_Id         String         @id @default(uuid()) // Primary Key
+  User_FName      String         @db.VarChar(200)
+  User_LName      String         @db.VarChar(200)
+  User_Email      String         @db.VarChar(200) @unique  // Ensure emails are unique
+  User_Role       String         @db.VarChar(200)
+  User_Password   String         @db.VarChar(200)
+  //is_Active       Boolean         
+  flagAssignments Flag_Assignment[]
+  auditLogs       Audit_Logs[]
+}
+
+model Feature_Flag {
+  Feature_Id      String         @id @default(uuid()) // Primary Key
+  Feature_Name    String         @db.VarChar(200)
+  Feature_Desc    String         @db.VarChar(200)
+  Feature_Status  Boolean
+  Date_Created    DateTime       @default(now())  // Automatically set on creation
+ //REMOVED is_updated      Boolean?        @default(false)  // Default false when created
+  flagAssignments Flag_Assignment[]
+  auditLogs       Audit_Logs[]
+
+  // Added New Column for Revisions
+  is_Deleted      Boolean?       @default(false)
+  Feature_JiraNo  String?        @db.VarChar(50)
+}
+
+model Flag_Assignment {
+  Assignment_Id   String         @id @default(uuid()) 
+  User_Id         String         @db.VarChar(50)
+  user            User           @relation(fields: [User_Id], references: [User_Id], onDelete: Cascade) 
+  is_enabled      Boolean        @default(false)
+  Date_Created    DateTime       @default(now()) 
+  Features_Id     String         @db.VarChar(50)
+  feature         Feature_Flag   @relation(fields: [Features_Id], references: [Feature_Id], onDelete: Cascade) 
+}
+
+model Audit_Logs {
+  Log_Id          String         @id @default(uuid()) 
+  User_Id         String         @db.VarChar(50)
+  user            User           @relation(fields: [User_Id], references: [User_Id], onDelete: Cascade)
+  Features_Id     String         @db.VarChar(50)  
+  feature         Feature_Flag   @relation(fields: [Features_Id], references: [Feature_Id], onDelete: Cascade)
+  Log_Activity    String         @db.VarChar(200)
+  Timestamp       DateTime       @default(now())
+}

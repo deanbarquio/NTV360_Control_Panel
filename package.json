@@ -1,0 +1,40 @@
+{
+  "name": "code",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:frontend": "cd client && npm run dev",
+    "start:backend": "tsx --watch src/index.ts",
+    "start:dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@prisma/client": "^6.5.0",
+    "axios": "^1.8.4",
+    "bcryptjs": "^3.0.2",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "heroicons": "^2.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.485.0",
+    "react-toastify": "^11.0.5"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.13.10",
+    "postcss": "^8.5.3",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

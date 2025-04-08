@@ -1,0 +1,15 @@
+{
+    "extends": "@tsconfig/node22/tsconfig.json", // this tells the compiler to extend the node22 tsconfig
+    "compilerOptions": {
+      "module": "ES2022",
+      "moduleResolution": "bundler", // this basically allows us to use import without specifying the file extension
+      "target": "ESNext", // this tells the compiler to compile the code to the latest version of ECMAScript
+      "outDir": "./dist", // this tells the compiler to output the compiled files in the dist directory
+      "rootDir": "./", // this tells the compiler to look for .ts files in the root directory
+      "allowJs": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true
+    },
+    "include": ["**/*.ts", "**/**/*.ts"], // this tells the compiler to include all .ts files
+    "exclude": ["dist", "client", "node_modules"] // this tells the compiler to ignore these directories
+  }
