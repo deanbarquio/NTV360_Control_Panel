@@ -312,8 +312,8 @@ return (
                   {/* JIRA NO */}
                   <td className="px-4 py-2">{feature.Feature_JiraNo}</td>
 
-                  
-                  <td className="w-[150px] h-[50px]">
+                
+                   <td className="w-[150px] h-[50px]">
                     <button title="Copy">
                       <img src={CopyIcon} alt="Copy" className="w-4 h-4 inline" />
                     </button>

@@ -414,7 +414,14 @@ return (
                       <button title="Edit"><img src={EditIcon} alt="Edit" className="w-3 h-3 inline" /></button>
                       <button title="Delete"><img src={DeleteIcon} alt="Delete" className="w-3 h-3 inline" /></button>
                     </td> */}
-                     <td className="w-[150px] h-[50px]">
+
+
+
+
+
+
+
+                    <td className="w-[150px] h-[50px]">
                     <button title="Copy">
                       <img src={CopyIcon} alt="Copy" className="w-4 h-4 inline" />
                     </button>
@@ -429,7 +436,7 @@ return (
                       >
                       <img src={DeleteIcon} alt="Delete" className="w-4 h-4 inline" />
                     </button>
-                  </td>
+                  </td> 
                   </tr>
                 ))}
               </tbody>
